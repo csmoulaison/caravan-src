@@ -8,7 +8,7 @@ void init_assets(Assets& assets) {
     assets.items.push_back(Item{ItemType::TRADE,  5, 200, 4, "RUG",   "HAND WOVEN IN TURKEY", &assets.sprite_rug});
     assets.items.push_back(Item{ItemType::TRADE,  1, 60, 9,  "SPICES","MAKES ANY MEAL BETTER", &assets.sprite_spice});
     assets.items.push_back(Item{ItemType::FOOD,  1, 48, 8,  "CURED HAM", "NICE AND SALTY", &assets.sprite_ham});
-    assets.items.push_back(Item{ItemType::FOOD,  1, 22, 8,  "GRAPES", "STRAIGHT FROMT RHE VINE", &assets.sprite_grapes});
+    assets.items.push_back(Item{ItemType::FOOD,  1, 22, 8,  "GRAPES", "STRAIGHT FROM THE VINE", &assets.sprite_grapes});
     assets.items.push_back(Item{ItemType::TRADE,  2, 35, 3,  "NECKLACE", "GOLD AND STONE", &assets.sprite_necklace});
     assets.items.push_back(Item{ItemType::TRADE,  2, 175, 1,  "SP NECKLACE", "GOLD AND SAPPHIRE", &assets.sprite_sapphire_necklace});
     assets.items.push_back(Item{ItemType::TRADE,  1, 100, 2,  "SAFFRON", "WORLDS FINEST SPICE", &assets.sprite_saffron});
@@ -25,4 +25,5 @@ void init_assets(Assets& assets) {
     assets.nosale = createAudio("./assets/sounds/nope.wav", false, 0);
     assets.bandit = createAudio("./assets/sounds/bandit.wav", false, 0);
     assets.oasis = createAudio("./assets/sounds/oasis.wav", false, 0);
+    assets.treasure = createAudio("./assets/sounds/treasure.wav", false, 0);
 }

@@ -64,13 +64,16 @@ void init_game(Game& game, Assets& assets) {
     generate_oasis(game);
 
     game.rocks.clear();
-    for(int i = 0; i < 8; i++) {
-        Rock rock;
-        rock.sprite = &assets.sprite_details[rand() % (assets.sprite_details.size() - 1)];
+
+    game.treasures.clear();
+    for(int i = 0; i < 12; i++) {
+        // BULLSHIT: it's called a rock because it used to be a rock and this is a game jam.
+        Treasure rock;
+        //rock.sprite = &assets.sprite_details[rand() % (assets.sprite_details.size() - 1)];
 
         bool eligible_position = true;
-        int min_dist = 3;
-        int min_rock_dist = 1;
+        int min_dist = 2;
+        int min_rock_dist = 4;
         for(int j = 0; j < 1000; j++) {
             eligible_position = true;
             random_position(rock.x, rock.y);
@@ -100,7 +103,7 @@ void init_game(Game& game, Assets& assets) {
         }
 
         if(eligible_position) {
-            game.rocks.push_back(rock);
+            game.treasures.push_back(rock);
         }
     }
 
@@ -116,6 +119,7 @@ void init_game(Game& game, Assets& assets) {
 void update_game(Game& game, Input& input, Assets& assets, DrawContext& draw_context) {
     bool bang_reset = false;
     int curx;
+    int cury;
 
     switch(game.state) {
     case GameState::READY:
@@ -158,6 +162,23 @@ void update_game(Game& game, Input& input, Assets& assets, DrawContext& draw_con
         draw_text(draw_context, "THEY STOLE ", Font::SMALL, curx, 97, &curx);
         draw_text(draw_context, std::to_string(game.stolen_bandit_money), Font::SMALL, curx, 97, &curx);
         draw_text(draw_context, " COINS", Font::SMALL, curx, 97, &curx);
+        break;
+    case GameState::TREASURE:
+        if(input.select.just_pressed) {
+            game.state = GameState::READY;
+            playSoundFromMemory(assets.step, VOLUME_MID);
+        }
+        draw_set_bg_tan(draw_context);
+        draw_game_ready(game, input, assets, draw_context);
+        draw_inventory_ui(draw_context, input, game.inventory, 0);
+        draw_player_header_ui(game, assets, draw_context);
+
+        draw_dialog(draw_context, DialogStyle::SOFT, 144, 80, 164, 19);
+        draw_text(draw_context, "FOUND A TREASURE CHEST", Font::BIG, 148, 82, nullptr);
+        curx = 148;
+        draw_text(draw_context, "YOU RETRIEVED ", Font::SMALL, curx, 91, &curx);
+        draw_text(draw_context, std::to_string(game.treasured_gold), Font::SMALL, curx, 91, &curx);
+        draw_text(draw_context, " GOLD", Font::SMALL, curx, 91, &curx);
         break;
     case GameState::GAME_OVER:
         if(game.waters < 0) {

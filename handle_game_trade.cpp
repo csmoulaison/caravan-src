@@ -50,6 +50,7 @@ void draw_game_trade(Game& game, Input& input, Assets& assets, DrawContext& cont
 
                 if(item->type == ItemType::CAMEL) {
                     game.caravaneers += 1;
+                    game.waters = WATER_PER_CARAVANEER * game.caravaneers;
                 } else {
                     game.inventory.push_back(item);
                 }
@@ -104,5 +105,10 @@ int market_value(Game& game, Item* item) {
         }
     }
 
-    return base_value - base_value * supply + base_value * demand;
+    int market_val = base_value - base_value * supply + base_value * demand;
+    if(market_val < 1) {
+        market_val = 1;
+    }
+
+    return market_val;
 }

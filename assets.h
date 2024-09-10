@@ -17,6 +17,7 @@ struct Assets {
     Audio* nosale;
     Audio* bandit;
     Audio* oasis;
+    Audio* treasure;
 
     // Sprites
     Sprite sprite_selector = {0, 0, 16, 16};

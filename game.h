@@ -11,6 +11,7 @@
 #include "marketplace.h"
 #include "oasis.h"
 #include "rocks.h"
+#include "treasure.h"
 
 #define CAPACITY_PER_CARAVANEER 25
 #define WATER_PER_CARAVANEER 6
@@ -21,6 +22,7 @@ enum class GameState {
     TRADE,
     OASIS_MSG,
     BANDITS,
+    TREASURE,
     GAME_OVER
 };
 
@@ -44,12 +46,19 @@ struct Game {
     float cam_y;
     int selector_x;
     int selector_y;
-    int stolen_bandit_money = 0;
 
+    // Only for messaging
+    int stolen_bandit_money = 0;
+    int treasured_gold = 0;
+    std::vector<Item*> treasured_items;
+    std::vector<int> treasured_qtys;
+
+    // Lists
     std::vector<Item*> inventory; // indexes items. contains duplicates for qty
     std::vector<Market> markets;
     std::vector<Oasis> oases;
     std::vector<Rock> rocks;
+    std::vector<Treasure> treasures;
     std::unordered_set<int> explored_tiles;
 };
 

@@ -67,6 +67,12 @@ void draw_game_ready(Game& game, Input& input, Assets& assets, DrawContext& cont
         draw_tile_cam(context, *rock.sprite, rock.x, rock.y, game.cam_x, game.cam_y);
     }
 
+    for(Treasure& treasure : game.treasures) {
+        if(treasure.active) {
+            draw_tile_cam(context, assets.sprite_treasure, treasure.x, treasure.y, game.cam_x, game.cam_y);
+        }
+    }
+
     draw_tile_cam(context, assets.sprite_camel, game.caravan_x, game.caravan_y, game.cam_x, game.cam_y);
 
     for(int y = 0; y < GAME_HEIGHT; y++) {

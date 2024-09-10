@@ -1,4 +1,9 @@
 #include "turn.h"
+#include <cmath>
+#include <unordered_set>
+
+#define SUPPLY_RESPONSE_AGGRESSION 0.33
+#define MAX_TREASURE_GOLD 300
 
 void simulate_turn(Game& game, Assets& assets, MoveDirection move) {
     switch(move) {
@@ -66,7 +71,14 @@ void simulate_turn(Game& game, Assets& assets, MoveDirection move) {
             playSoundFromMemory(assets.trade_open, VOLUME_MID);
         }
 
+        std::unordered_set<Item*> encountered_items;
+
         for(Item& item : assets.items) {
+            if(encountered_items.count(&item) == 1) {
+                continue;
+            }
+            encountered_items.insert(&item);
+
             int market_count = 0;
             for(Item* market_item : market.inventory) {
                 if(market_item == &item) {
@@ -74,10 +86,35 @@ void simulate_turn(Game& game, Assets& assets, MoveDirection move) {
                 }
             }
 
+            // RESPOND TO SUPPLY
+            // negative supply_delta values mean we have too many of an item
+            for(MarketPrice& price : market.prices) {
+                if(price.item != &item) {
+                    continue;
+                }
+
+                int supply_delta = 0;
+                if(market_count > 0) {
+                    int supply_delta = item.average_movement - market_count;
+                } else {
+                    supply_delta = 1;
+                }
+
+                int supply_delta_edge = 10;
+                if(supply_delta < -supply_delta_edge) supply_delta = -supply_delta_edge;
+                if(supply_delta < supply_delta_edge) supply_delta = supply_delta_edge;
+
+                int supply_target = std::lerp(0, 1, (supply_delta + 10) / (supply_delta_edge * 2));
+                price.supply = std::lerp(price.supply, supply_target, SUPPLY_RESPONSE_AGGRESSION);
+            }
+
             if(market_count > 0) {
                 // item exists in market
                 int difference = rand() % item.average_movement - item.average_movement / 2;
-                difference++;
+
+                // bias towards increase
+                difference += 2;
+                
                 if(difference > 0) {
                     // adding items
                     for(int i = 0; i < rand() % item.average_movement; i++) {
@@ -114,6 +151,7 @@ void simulate_turn(Game& game, Assets& assets, MoveDirection move) {
             game.waters = game.caravaneers * WATER_PER_CARAVANEER;
             playSoundFromMemory(assets.oasis, VOLUME_MID);
             game.state = GameState::OASIS_MSG;
+            return;
         }
     }
 
@@ -131,6 +169,20 @@ void simulate_turn(Game& game, Assets& assets, MoveDirection move) {
         if(!try_bandit(game, assets)) {   
             playSoundFromMemory(assets.step, VOLUME_MID);
         }
+    }
+
+    // Treasure
+    for(int i = 0; i < game.treasures.size(); i++) {
+        Treasure& treasure = game.treasures[i];
+        if(!treasure.active || treasure.x != game.caravan_x || treasure.y != game.caravan_y) {
+            continue;
+        }
+
+        treasure.active = false;
+        game.state = GameState::TREASURE;
+        game.treasured_gold = rand() % MAX_TREASURE_GOLD;
+        game.money += game.treasured_gold;
+        playSoundFromMemory(assets.treasure, VOLUME_MID);
     }
 
     explore_tiles(game.explored_tiles, game.caravan_x, game.caravan_y);
